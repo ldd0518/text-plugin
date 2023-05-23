@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>My Content Saver</title>
+	<style>
+		h1 {
+			text-align: center;
+			margin-bottom: 30px;
+		}
+		textarea {
+			width: 100%;
+			height: 100px;
+			margin-bottom: 20px;
+			font-size: 16px;
+		
+		}
+		button {
+			cursor: pointer;
+			padding: 10px;
+			border: none;
+			background-color: #3f51b5;
+			color: #fff;
+			font-size: 16px;
+			border-radius: 5px;
+		}
+		button:hover {
+			background-color: #303f9f;
+		}
+	</style>
+</head>
+<body>
+	<h1>My Content Saver</h1>
+
+	<textarea id="savedContents"></textarea>
+	<button id="getContentsBtn">获取保存的内容</button>
+
+	<script>
+		// 发送消息告知 background.js，popup.html 页面已经加载完成
+		var port = chrome.runtime.connect({name: "popupLoaded"});
+
+		// 监听来自 background.js 的消息
+		port.onMessage.addListener(function(msg) {
+			if(msg.contents) {
+				// 将保存的文本放入 textarea 中
+				var contentsTextarea = document.getElementById("savedContents");
+				contentsTextarea.value = msg.contents.join("\n\n");
+				selectTextarea(contentsTextarea);
+			}
+		});
+
+		// 监听按钮点击事件，发出请求将保存的文本发送给 popup.html 页面
+		var getContentsBtn = document.getElementById("getContentsBtn");
+		getContentsBtn.addEventListener("click", function() {
+			port.postMessage("getContents");
+		});
+
+		// 选中 textarea 中的文本
+		function selectTextarea(textarea) {
+			textarea.focus();
+			textarea.select();
+		}
+	</script>
+</body>
+</html>
